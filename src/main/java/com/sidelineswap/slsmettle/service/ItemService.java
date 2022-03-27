@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,6 +34,8 @@ public class ItemService {
     public Item save(Item item) {
         Item savedItem = null;
         try {
+            item.setId(UUID.randomUUID().toString());
+            item.setCreatedAt(Instant.now());
             log.info("Trying to save item: {}", item);
             ItemEntity itemToSave = mapper.toEntity(item);
             return mapper.fromEntity(itemRepository.save(itemToSave));
