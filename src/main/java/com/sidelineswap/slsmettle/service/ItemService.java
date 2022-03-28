@@ -32,14 +32,15 @@ public class ItemService {
 
     public Item getOne(String id) throws Exception {
         ItemEntity itemEntity = itemRepository.getById(id);
-        if(itemEntity.isDeleted()) {
+        if (itemEntity.isDeleted()) {
             throw new Exception("Item with id: " + id + " is deleted or doesn't exist!");
         }
+
         return mapper.fromEntity(itemEntity);
     }
 
     public Item save(Item item) {
-        if(isNull(item.getId())) {
+        if (isNull(item.getId())) {
             return saveItem(item);
         }
 
@@ -71,8 +72,12 @@ public class ItemService {
         }
     }
 
-    public void deleteById(String id) {
+    public void deleteById(String id) throws Exception {
         ItemEntity itemToDelete = itemRepository.getById(id);
+        if (itemToDelete.isDeleted()) {
+            throw new Exception("Item with id: " + id + " is deleted or doesn't exist!");
+        }
+
         itemToDelete.setDeleted(true);
 
         log.info("Trying to delete item with id: {}", id);

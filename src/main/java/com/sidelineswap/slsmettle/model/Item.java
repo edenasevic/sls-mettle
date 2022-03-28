@@ -1,5 +1,6 @@
 package com.sidelineswap.slsmettle.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sidelineswap.slsmettle.enums.ItemType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,5 +27,6 @@ public class Item implements Serializable {
     Instant createdAt;
     Instant updateAt;
     Instant deletedAt;
+    @JsonIgnore
     boolean deleted;
 }
