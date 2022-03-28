@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,16 +25,28 @@ public class ItemService {
 
     public List<Item> getItems() {
         return itemRepository.findAll().stream()
+                .filter(itemEntity -> !itemEntity.isDeleted())
                 .map(mapper::fromEntity)
                 .collect(Collectors.toList());
     }
 
-    public Item getOne(String id) {
-        return mapper.fromEntity(itemRepository.findById(id).orElse(null));
+    public Item getOne(String id) throws Exception {
+        ItemEntity itemEntity = itemRepository.getById(id);
+        if(itemEntity.isDeleted()) {
+            throw new Exception("Item with id: " + id + " is deleted or doesn't exist!");
+        }
+        return mapper.fromEntity(itemEntity);
     }
 
     public Item save(Item item) {
-        Item savedItem = null;
+        if(isNull(item.getId())) {
+            return saveItem(item);
+        }
+
+        return updateItem(item);
+    }
+
+    private Item saveItem(Item item) {
         try {
             item.setId(UUID.randomUUID().toString());
             item.setCreatedAt(Instant.now());
@@ -45,8 +59,23 @@ public class ItemService {
         }
     }
 
+    private Item updateItem(Item item) {
+        try {
+            item.setUpdateAt(Instant.now());
+            log.info("Trying to save item: {}", item);
+            ItemEntity itemToUpdate = mapper.toEntity(item);
+            return mapper.fromEntity(itemRepository.save(itemToUpdate));
+        } catch (Exception e) {
+            log.error("Error while saving item: {}", item, e);
+            throw e;
+        }
+    }
+
     public void deleteById(String id) {
+        ItemEntity itemToDelete = itemRepository.getById(id);
+        itemToDelete.setDeleted(true);
+
         log.info("Trying to delete item with id: {}", id);
-        itemRepository.deleteById(id);
+        itemRepository.save(itemToDelete);
     }
 }

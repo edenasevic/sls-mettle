@@ -26,4 +26,5 @@ public class Item implements Serializable {
     Instant createdAt;
     Instant updateAt;
     Instant deletedAt;
+    boolean deleted;
 }

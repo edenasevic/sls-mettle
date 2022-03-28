@@ -44,4 +44,6 @@ public class ItemEntity implements Serializable {
     Instant updatedAt;
 
     Instant deletedAt;
+
+    boolean deleted;
 }
